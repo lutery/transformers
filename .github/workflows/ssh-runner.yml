@@ -25,7 +25,7 @@ jobs:
         with:
           # Slack channel id, channel name, or user id to post message.
           # See also: https://api.slack.com/methods/chat.postMessage#channels
-          channel-id: #transformers-ci-feedback-tests
+          channel-id: '#transformers-ci-feedback-tests'
           # For posting a rich message using Block Kit
           payload: |
             {
