@@ -19,6 +19,7 @@ jobs:
           echo ${{ secrets[format('{0}_{1}', env.github_actor, 'SLACK_ID')] }}
           python -c 'import os; import json; o = str(${{ toJSON(secrets) }}); print(o[:5]); print(o[-4:])'
           python -c 'import os; t = "ydshieh".upper(); o = ${{ toJSON(secrets) }}; u = o[f"{t}_SLACK_ID"]; print(u)'
+          echo "person=$(python -c 'import os; t = "ydshieh".upper(); o = ${{ toJSON(secrets) }}; u = o[f"{t}_SLACK_ID"]; print(u)')" >> $GITHUB_ENV
 
       - name: Send SSH informations to Slack channel
         uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001
@@ -34,7 +35,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "hello"
+                    "text": "hello <@${{ env.person }}>"
                   }
                 }
               ]
