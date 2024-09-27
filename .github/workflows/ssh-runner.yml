@@ -17,4 +17,4 @@ jobs:
         run: |
           echo "${{ env.github_actor }}"
           echo ${{ secrets[format('{0}_{1}', env.github_actor, 'SLACK_ID')] }}
-          python -c 'import os; import json; o = str(${{ toJSON(secrets) }}); print(o[:5]); print(o[-2:])'
+          python -c 'import os; import json; o = str(${{ toJSON(secrets) }}); print(o[:5]); print(o[-4:])'
