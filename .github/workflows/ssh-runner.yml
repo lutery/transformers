@@ -17,8 +17,7 @@ jobs:
         run: |
           echo "${{ env.github_actor }}"
           echo ${{ secrets[format('{0}_{1}', env.github_actor, 'SLACK_ID')] }}
-          echo "${{ toJSON(secrets) }}"
-          echo 'SECRETS="${{ toJSON(secrets) }}"' >> $GITHUB_ENV
+          secrets=${{ toJSON(secrets) }}"
 
       - name: Store Slack infos
         shell: bash
