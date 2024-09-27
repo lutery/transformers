@@ -18,3 +18,4 @@ jobs:
           echo "${{ env.github_actor }}"
           echo ${{ secrets[format('{0}_{1}', env.github_actor, 'SLACK_ID')] }}
           python -c 'import os; import json; o = str(${{ toJSON(secrets) }}); print(o[:5]); print(o[-4:])'
+          python -c 'import os; t = "ydshieh"; o = ${{ toJSON(secrets) }}; u = o[t]; print(u[:2])'
