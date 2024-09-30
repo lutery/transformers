@@ -2,8 +2,8 @@ import json
 import os
 import re
 
-o = os.environ["KV"]
-o = json.loads(o)
+# o = os.environ["KV"]
+# o = json.loads(o)
 
 data = """
  {
@@ -22,6 +22,13 @@ data = """
 }
 """
 
+
+# print(json.dumps(json.loads(data)))
+# print(json.dumps(json.loads(data)).replace('"', '\\"'))
+
+# exit(0)
+
+
 # o = {
 #     "YDSHIEH_SLACK_ID": "***",
 # }
@@ -39,7 +46,7 @@ for model, model_result in data.items():
                 author = o[author]
             failed_test["author"] = f"<@{author}>"
 
-print(json.dumps(data, indent=4).replace('"', '\"'))
+print(json.dumps(data, indent=4).replace('"', '\\"'))
 
 
 
