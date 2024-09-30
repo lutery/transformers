@@ -46,9 +46,9 @@ jobs:
         shell: bash
         run: echo "${{ env.TEXT }}"
 
-      - name: Store Slack infos 6
-        shell: bash
-        run: echo "${{ env.TEXT2 }}"
+      # - name: Store Slack infos 6
+      #   shell: bash
+      #   run: echo "${{ env.TEXT2 }}"
 
       # - name: Send SSH informations to Slack channel
       #   uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001
