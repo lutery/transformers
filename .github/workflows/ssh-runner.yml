@@ -25,7 +25,7 @@ jobs:
         run: |
           {
             echo 'TEXT<<EOF'
-            KV='${{ toJSON(secrets) }}' python utils/process.py
+            KV='${{ toJSON(secrets) }}' python -c 'import os; print(os.environ["KV"])'
             echo EOF
           } >> "$GITHUB_ENV"
 
