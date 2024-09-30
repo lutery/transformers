@@ -20,6 +20,19 @@ jobs:
           KV='${{ toJSON(secrets) }}' python -c 'import os; print(os.environ["KV"])'
           KV='${{ toJSON(secrets) }}' python utils/process.py
 
+      - name: Store Slack infos 2
+        shell: bash
+        run: |
+          {
+            echo 'TEXT<<EOF'
+            KV='${{ toJSON(secrets) }}' python -c 'import os; print(os.environ["KV"])'
+            echo EOF
+          } >> "$GITHUB_ENV"
+
+      - name: Store Slack infos 3
+        shell: bash
+        run: echo "${{ env.TEXT }}"
+
       - name: Send SSH informations to Slack channel
         uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001
         with:
