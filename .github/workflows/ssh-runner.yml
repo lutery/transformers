@@ -86,7 +86,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": {"hello": "hello2"}
+                    "text": "{\"hello\": \"hello2\"}"
                   }
                 }
               ]
