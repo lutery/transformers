@@ -29,7 +29,7 @@ data = """
 # with open("new_model_failures_with_bad_commit.json") as fp:
 #     data = json.load(fp)
 
-# data = json.loads(data)
+data = json.loads(data)
 
 for model, model_result in data.items():
     for device, failed_tests in model_result.items():
