@@ -50,27 +50,27 @@ jobs:
       #   shell: bash
       #   run: echo "${{ env.TEXT2 }}"
 
-      - name: Send SSH informations to Slack channel
-        uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001
-        with:
-          # Slack channel id, channel name, or user id to post message.
-          # See also: https://api.slack.com/methods/chat.postMessage#channels
-          channel-id: '#transformers-ci-feedback-tests'
-          # For posting a rich message using Block Kit
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "${{ env.TEXT }}"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}
+      # - name: Send SSH informations to Slack channel
+      #   uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001
+      #   with:
+      #     # Slack channel id, channel name, or user id to post message.
+      #     # See also: https://api.slack.com/methods/chat.postMessage#channels
+      #     channel-id: '#transformers-ci-feedback-tests'
+      #     # For posting a rich message using Block Kit
+      #     payload: |
+      #       {
+      #         "blocks": [
+      #           {
+      #             "type": "section",
+      #             "text": {
+      #               "type": "mrkdwn",
+      #               "text": "${{ env.TEXT }}"
+      #             }
+      #           }
+      #         ]
+      #       }
+      #   env:
+      #     SLACK_BOT_TOKEN: ${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}
 
       - name: Send SSH informations to Slack channel 2
         uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001
@@ -86,7 +86,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ env.TEXT2 }}"
+                    "text": '{"hello": "hello2"}'
                   }
                 }
               ]
