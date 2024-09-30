@@ -39,7 +39,7 @@ for model, model_result in data.items():
                 author = o[author]
             failed_test["author"] = f"<@{author}>"
 
-print(json.dumps(data, indent=4))
+print(json.dumps(data, indent=4).replace('"', '\"'))
 
 
 
