@@ -3,7 +3,7 @@ import os
 import re
 
 o = os.environ["KV"]
-
+o = json.loads(o)
 
 data = """
  {
