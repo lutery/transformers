@@ -12,6 +12,8 @@ jobs:
     env:
       github_actor: ydshieh
     steps:
+      - uses: actions/checkout@v4
+
       - name: Store Slack infos
         shell: bash
         run: |
