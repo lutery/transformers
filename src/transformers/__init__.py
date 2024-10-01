@@ -2556,7 +2556,6 @@ else:
             "GlmForSequenceClassification",
             "GlmForTokenClassification",
             "GlmModel",
-            "GlmPreTrainedModel",
         ]
     )
     _import_structure["models.llava"].extend(
@@ -6993,7 +6992,6 @@ if TYPE_CHECKING:
             GlmForSequenceClassification,
             GlmForTokenClassification,
             GlmModel,
-            GlmPreTrainedModel,
         )
         from .models.glpn import (
             GLPNForDepthEstimation,
