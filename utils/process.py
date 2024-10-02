@@ -4,6 +4,9 @@ import re
 
 o = os.environ["KV"]
 o = json.loads(o)
+# o = {}
+
+from collections import Counter
 
 data = """
  {
@@ -72,12 +75,39 @@ data = json.loads(data)
 # with open("new_model_failures_with_bad_commit.json") as fp:
 #     data = json.load(fp)
 
+# for model, model_result in data.items():
+#     for device, failed_tests in model_result.items():
+#         for failed_test in failed_tests:
+#             author = failed_test["author"].replace("-", "_").upper() + "_SLACK_ID"
+#             if author in o:
+#                 author = o[author]
+#             failed_test["author"] = f"<@{author}>"
+
+# group `author` or `merged_by`
+
+new_data = {}
+
 for model, model_result in data.items():
     for device, failed_tests in model_result.items():
         for failed_test in failed_tests:
-            author = failed_test["author"].replace("-", "_").upper() + "_SLACK_ID"
-            if author in o:
-                author = o[author]
-            failed_test["author"] = f"<@{author}>"
+            author = failed_test["author"]
 
-print(json.dumps(data, indent=4).replace('"', '\\"').replace("\n", "\\n"))
+            # # TODO: we want to make it an internal member instead of checking it's in secrets
+            # if not author.replace("-", "_").upper() + "_SLACK_ID" in o:
+            #     author = failed_test["merged_by"]
+
+            if author not in new_data:
+                new_data[author] = Counter()
+
+            model_name = failed_test["test"].split("/")[2]
+            new_data[author].update([model_name])
+
+            # if author in o:
+            #     author = o[author]
+            # failed_test["author"] = f"<@{author}>"
+
+for author in new_data:
+    new_data[author] = dict(new_data[author])
+
+print(json.dumps(new_data, indent=4)).replace('"', '\\"').replace("\n", "\\n"))
+# print(json.dumps(data, indent=4).replace('"', '\\"').replace("\n", "\\n"))
