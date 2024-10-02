@@ -109,5 +109,5 @@ for model, model_result in data.items():
 for author in new_data:
     new_data[author] = dict(new_data[author])
 
-print(json.dumps(new_data, indent=4)).replace('"', '\\"').replace("\n", "\\n"))
+print(json.dumps(new_data, indent=4).replace('"', '\\"').replace("\n", "\\n"))
 # print(json.dumps(data, indent=4).replace('"', '\\"').replace("\n", "\\n"))
