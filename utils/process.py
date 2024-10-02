@@ -15,28 +15,62 @@ data = """
                 "pr_number": null,
                 "author": "ydshieh",
                 "merged_by": null
+            },
+            {
+                "test": "tests/models/vit/test_modeling_vit.py::ViTModelTest::test_foo_2",
+                "commit": "4b7de7cf31573a3b924c3473e1b8cc913cb0f63a",
+                "pr_number": null,
+                "author": "zucchini-nlp",
+                "merged_by": null
+            }
+        ],
+        "multi-gpu": []
+    },
+    "bert": {
+        "single-gpu": [
+            {
+                "test": "tests/models/bert/test_modeling_bert.py::BertModelTest::test_foo",
+                "commit": "4b7de7cf31573a3b924c3473e1b8cc913cb0f63a",
+                "pr_number": null,
+                "author": "ydshieh",
+                "merged_by": null
+            },
+            {
+                "test": "tests/models/bert/test_modeling_bert.py::BertModelTest::test_foo_3",
+                "commit": "4b7de7cf31573a3b924c3473e1b8cc913cb0f63a",
+                "pr_number": null,
+                "author": "ydshieh",
+                "merged_by": null
+            }
+        ],
+        "multi-gpu": []
+    },
+    "gpt2": {
+        "single-gpu": [
+            {
+                "test": "tests/models/gpt2/test_modeling_gpt2.py::GPT2ModelTest::test_foo_4",
+                "commit": "4b7de7cf31573a3b924c3473e1b8cc913cb0f63a",
+                "pr_number": null,
+                "author": "zucchini-nlp",
+                "merged_by": null
+            },
+            {
+                "test": "tests/models/gpt2/test_modeling_gpt2.py::GPT2ModelTest::test_foo_5",
+                "commit": "4b7de7cf31573a3b924c3473e1b8cc913cb0f63a",
+                "pr_number": null,
+                "author": "zucchini-nlp",
+                "merged_by": null
             }
         ],
         "multi-gpu": []
     }
 }
 """
+data = json.loads(data)
 
-
-# print(json.dumps(json.loads(data)))
-# print(json.dumps(json.loads(data)).replace('"', '\\"'))
-
-# exit(0)
-
-
-# o = {
-#     "YDSHIEH_SLACK_ID": "***",
-# }
 
 # with open("new_model_failures_with_bad_commit.json") as fp:
 #     data = json.load(fp)
-
-data = json.loads(data)
 
 for model, model_result in data.items():
     for device, failed_tests in model_result.items():
@@ -47,6 +81,3 @@ for model, model_result in data.items():
             failed_test["author"] = f"<@{author}>"
 
 print(json.dumps(data, indent=4).replace('"', '\\"').replace("\n", "\\n"))
-
-
-
