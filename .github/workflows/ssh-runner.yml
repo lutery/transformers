@@ -12,10 +12,15 @@ jobs:
     env:
       github_actor: ydshieh
     steps:
-      - name: Store Slack infos
+      - name: Get team members
         shell: bash
         run: |
-          curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.ACCESS_TEAM_INFO_TOKEN }}" https://api.github.com/orgs/huggingface/teams/transformers/members
+          curl -o "team_members.txt" -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.ACCESS_TEAM_INFO_TOKEN }}" https://api.github.com/orgs/huggingface/teams/transformers/members
+
+      - name: Check team members
+        shell: bash
+        run: |
+          cat team_members.txt
 
       - uses: actions/checkout@v4
 
