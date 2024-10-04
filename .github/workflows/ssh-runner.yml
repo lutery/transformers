@@ -15,7 +15,7 @@ jobs:
       - name: Store Slack infos
         shell: bash
         run: |
-          curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.ACCESS_REPO_INFO_TOKEN }}" https://api.github.com/orgs/huggingface/teams/transformers/members
+          curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.ACCESS_TEAM_INFO_TOKEN }}" https://api.github.com/orgs/huggingface/teams/transformers/members
 
       - uses: actions/checkout@v4
 
