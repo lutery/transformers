@@ -104,7 +104,7 @@ class LlamaRotaryEmbedding(nn.Module):
         1 - growing beyond the cached sequence length (allow scaling)
         2 - the current sequence length is in the original scale (avoid losing precision with small sequences)
         """
-        seq_len = torch.max(position_ids) + 1
+        seq_len = torch.max(position_ids) + 1 # 当前序列的长度
         if seq_len > self.max_seq_len_cached:  # growth
             inv_freq, self.attention_scaling = self.rope_init_fn(self.config, device, seq_len=seq_len)
             self.register_buffer("inv_freq", inv_freq, persistent=False)  # TODO joao: may break with compilation
@@ -150,6 +150,7 @@ def rotate_half(x):
 
 def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
     """Applies Rotary Position Embedding to the query and key tensors.
+    将位置信息潜入到qk中
 
     Args:
         q (`torch.Tensor`): The query tensor.
@@ -265,13 +266,16 @@ class LlamaAttention(nn.Module):
         **kwargs: Unpack[FlashAttentionKwargs],
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         input_shape = hidden_states.shape[:-1]
-        hidden_shape = (*input_shape, -1, self.head_dim)
-
-        query_states = self.q_proj(hidden_states).view(hidden_shape).transpose(1, 2)
+        hidden_shape = (*input_shape, -1, self.head_dim) # 各维度的含义：batch_size, seq_len, num_heads, head_dim 其中num_heads * head_dim = hidden_size
+        
+        # 对比视频教程少了下载预训练模型的代码，找到为什么消失了？ todo
+        # self.q_proj(hidden_states).view(hidden_shape) shape = (batch_size, seq_len, num_heads, head_dim)
+        # transpose(1, 2) 转置后，query_states shape = (batch_size, num_heads, seq_len, head_dim)
+        query_states = self.q_proj(hidden_states).view(hidden_shape).transpose(1, 2) 
         key_states = self.k_proj(hidden_states).view(hidden_shape).transpose(1, 2)
         value_states = self.v_proj(hidden_states).view(hidden_shape).transpose(1, 2)
 
-        cos, sin = position_embeddings
+        cos, sin = position_embeddings # cos size() = (batch_size, seq_len, 2 * num_heads) sin size() = (batch_size, seq_len, 2 * num_heads)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
 
         if past_key_value is not None:
@@ -498,6 +502,7 @@ class LlamaModel(LlamaPreTrainedModel):
         self.padding_idx = config.pad_token_id
         self.vocab_size = config.vocab_size
 
+        # 词表大小、隐藏层尺寸、填充id
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
         self.layers = nn.ModuleList(
             [LlamaDecoderLayer(config, layer_idx) for layer_idx in range(config.num_hidden_layers)]
@@ -547,27 +552,45 @@ class LlamaModel(LlamaPreTrainedModel):
             use_cache = False
 
         if inputs_embeds is None:
+            # todo 为什么这里会有输入嵌入为None的情况？
+            # 答：是为了提供更高的灵活性，允许用户自己转换词嵌入
+
+            # 则将输入的序列转换为嵌入
+            # input_ids shape = (batch_size, seq_len)
+            # input_embeds shape = (batch_size, seq_len, hidden_size)
             inputs_embeds = self.embed_tokens(input_ids)
 
+        # 默认情况下是开启use_cache
+        # 判断是否使用缓存，如果使用缓存，则初始化一个动态缓存
+        # 这里的缓存不针对特定的某个使用场景
         if use_cache and past_key_values is None:
             past_key_values = DynamicCache()
 
+        # 如果缓存不为空，且是静态缓存
         if cache_position is None:
+            # todo 获取已处理的词令牌数量，大概也就是最长的词令牌数量，用于确定生成的positon编码的最大值吧
+            # todo 从哪里更新这个值的
             past_seen_tokens = past_key_values.get_seq_length() if past_key_values is not None else 0
+            # 计算输入序列的位置索引编码
+            # cache_position shape = （seq_len）
             cache_position = torch.arange(
                 past_seen_tokens, past_seen_tokens + inputs_embeds.shape[1], device=inputs_embeds.device
             )
 
+        # 如果用户对位置编码没有特定的要求，则使用自己的位置编码
         if position_ids is None:
+            # posiiton_ids shape = (batch_size, seq_len) = (1, seq_len)
             position_ids = cache_position.unsqueeze(0)
 
         causal_mask = self._update_causal_mask(
             attention_mask, inputs_embeds, cache_position, past_key_values, output_attentions
         )
 
+        # hidden_states shape = (batch_size, seq_len, hidden_size)
         hidden_states = inputs_embeds
 
         # create position embeddings to be shared across the decoder layers
+        # hidden_states shape = (batch_size, seq_len, hidden_size)
         position_embeddings = self.rotary_emb(hidden_states, position_ids)
 
         # decoder layers
