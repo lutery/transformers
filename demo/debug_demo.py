@@ -25,7 +25,7 @@ def run_llama():
     input_ids = torch.randint(
         low=0, high=llamaConfig.vocab_size, size=(4, 30)).to(deivce)
     
-    res = llamaModel(input_ids)
+    res = llamaModel(input_ids) # input_ids shape (batch_size, sequence_length)
     print(res)
 
 

@@ -535,16 +535,17 @@ class LlamaModel(LlamaPreTrainedModel):
         cache_position: Optional[torch.LongTensor] = None,
         **flash_attn_kwargs: Unpack[FlashAttentionKwargs],
     ) -> Union[Tuple, BaseModelOutputWithPast]:
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions # output attention 输出注意力权重，主要用于给用户分析模型关注了哪些部分，用于调试和理解模型
         output_hidden_states = (
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        use_cache = use_cache if use_cache is not None else self.config.use_cache
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        ) # output hidden states 输出隐藏状态，主要用于给用户分析模型的中间状态，用于调试和理解模型，可视化模型有着重要的帮助
+        use_cache = use_cache if use_cache is not None else self.config.use_cache # 是否使用缓存
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict # 控制返回的数据格式是字典还是元祖
 
         if (input_ids is None) ^ (inputs_embeds is not None):
             raise ValueError("You must specify exactly one of input_ids or inputs_embeds")
 
+        # todo 查看代码在哪里有不兼容的情况，以及什么是梯度检查
         if self.gradient_checkpointing and self.training and use_cache:
             logger.warning_once(
                 "`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`."
@@ -566,10 +567,11 @@ class LlamaModel(LlamaPreTrainedModel):
         if use_cache and past_key_values is None:
             past_key_values = DynamicCache()
 
-        # 如果缓存不为空，且是静态缓存
+        # 是否已经缓存位置信息
         if cache_position is None:
             # todo 获取已处理的词令牌数量，大概也就是最长的词令牌数量，用于确定生成的positon编码的最大值吧
             # todo 从哪里更新这个值的
+            # 获取已经缓存的序列的长度
             past_seen_tokens = past_key_values.get_seq_length() if past_key_values is not None else 0
             # 计算输入序列的位置索引编码
             # cache_position shape = （seq_len）
@@ -582,6 +584,11 @@ class LlamaModel(LlamaPreTrainedModel):
             # posiiton_ids shape = (batch_size, seq_len) = (1, seq_len)
             position_ids = cache_position.unsqueeze(0)
 
+        # attentin_mask = None or other todo
+        # inputs_embeds shape = (batch_size, seq_len, hidden_size)
+        # cache_position shape = (seq_len)
+        # past_key_values 是一个动态缓存
+        # output_attentions 是否输出注意力权重
         causal_mask = self._update_causal_mask(
             attention_mask, inputs_embeds, cache_position, past_key_values, output_attentions
         )
@@ -653,7 +660,7 @@ class LlamaModel(LlamaPreTrainedModel):
         past_key_values: Cache,
         output_attentions: bool,
     ):
-        if self.config._attn_implementation == "flash_attention_2":
+        if self.config._attn_implementation == "flash_attention_2": # 据说这是一个新的注意力实现，todo 关注一下这个的作用
             if attention_mask is not None and (attention_mask == 0.0).any():
                 return attention_mask
             return None
@@ -661,11 +668,18 @@ class LlamaModel(LlamaPreTrainedModel):
         # For SDPA, when possible, we will rely on its `is_causal` argument instead of its `attn_mask` argument, in
         # order to dispatch on Flash Attention 2. This feature is not compatible with static cache, as SDPA will fail
         # to infer the attention mask.
+        # 获取已经缓存的序列长度
         past_seen_tokens = past_key_values.get_seq_length() if past_key_values is not None else 0
+        # todo 根据外面的代码，貌似一定是动态缓存吧？
         using_static_cache = isinstance(past_key_values, StaticCache)
 
         # When output attentions is True, sdpa implementation's forward method calls the eager implementation's forward
+        # 注意力掩码采用sdqa，且不输出注意力权重，且不使用静态缓存
+        # todo 需要了解sdqa是什么注意力机制
         if self.config._attn_implementation == "sdpa" and not using_static_cache and not output_attentions:
+            # attention_mask is none 或者其他
+            # input_tensor shape = (batch_size, seq_len, hidden_size)
+            # past_seen_tokens shape = (batch_size, seq_len)
             if AttentionMaskConverter._ignore_causal_mask_sdpa(
                 attention_mask,
                 inputs_embeds=input_tensor,
