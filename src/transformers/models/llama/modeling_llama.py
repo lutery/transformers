@@ -679,7 +679,7 @@ class LlamaModel(LlamaPreTrainedModel):
         if self.config._attn_implementation == "sdpa" and not using_static_cache and not output_attentions:
             # attention_mask is none 或者其他
             # input_tensor shape = (batch_size, seq_len, hidden_size)
-            # past_seen_tokens shape = (batch_size, seq_len)
+            # past_seen_tokens shape = seq_len
             if AttentionMaskConverter._ignore_causal_mask_sdpa(
                 attention_mask,
                 inputs_embeds=input_tensor,
