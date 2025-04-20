@@ -460,7 +460,7 @@ class SegGptEncoder(nn.Module):
     def __init__(self, config: SegGptConfig) -> None:
         super().__init__()
         self.config = config
-        dpr = [x.item() for x in torch.linspace(0, config.drop_path_rate, config.num_hidden_layers)]
+        dpr = [x.item() for x in torch.linspace(0, config.drop_path_rate, config.num_hidden_layers, device="cpu")]
         self.layers = nn.ModuleList([SegGptLayer(config, dpr[i]) for i in range(config.num_hidden_layers)])
         self.layernorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.gradient_checkpointing = False
@@ -817,8 +817,11 @@ class SegGptModel(SegGptPreTrainedModel):
         # and reconstructed together (In-Context Painting).
         if bool_masked_pos is None:
             num_patches = self.embeddings.patch_embeddings.num_patches
-            bool_masked_pos = torch.zeros(num_patches, dtype=torch.bool).to(pixel_values.device)
-            bool_masked_pos[num_patches // 2 :] = 1
+            bool_masked_pos_zeros = torch.zeros(num_patches // 2, dtype=torch.bool, device=pixel_values.device)
+            bool_masked_pos_ones = torch.ones(
+                num_patches - num_patches // 2, dtype=torch.bool, device=pixel_values.device
+            )
+            bool_masked_pos = torch.cat([bool_masked_pos_zeros, bool_masked_pos_ones])
             bool_masked_pos = bool_masked_pos.unsqueeze(0)
 
         embedding_output = self.embeddings(
@@ -975,8 +978,11 @@ class SegGptForImageSegmentation(SegGptPreTrainedModel):
 
         if bool_masked_pos is None:
             num_patches = self.model.embeddings.patch_embeddings.num_patches
-            bool_masked_pos = torch.zeros(num_patches, dtype=torch.bool).to(pixel_values.device)
-            bool_masked_pos[num_patches // 2 :] = 1
+            bool_masked_pos_zeros = torch.zeros(num_patches // 2, dtype=torch.bool, device=pixel_values.device)
+            bool_masked_pos_ones = torch.ones(
+                num_patches - num_patches // 2, dtype=torch.bool, device=pixel_values.device
+            )
+            bool_masked_pos = torch.cat([bool_masked_pos_zeros, bool_masked_pos_ones])
             bool_masked_pos = bool_masked_pos.unsqueeze(0)
 
         outputs = self.model(
