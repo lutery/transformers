@@ -12,8 +12,8 @@ def run_llama():
     deivce = select_device()
 
     llamaConfig = LlamaConfig(
-        vocab_size=32000,
-        hidden_size=4096 // 2,
+        vocab_size=32000, # 词表大小
+        hidden_size=4096 // 2, # 隐藏层大小
         intermediate_size=11008 // 2,
         num_hidden_layers=32 // 2,
         num_attention_heads=32 // 2,
